@@ -66,16 +66,20 @@ class EntriesListTable extends React.Component<EntriesListTableProp, EntriesList
         if (typeof (data) === "string" || data === undefined)
             return
         data.forEach(val => listData.push(Object.assign({}, val)));
-        let listtabledata: { idx: string; id: string; spiffeid: string; parentid: string; selectors: string; info: string }[] = [];
+        let listtabledata: { idx: string; id: string; spiffeid: string; parentid: string; selectors: string; info: string; expired: string }[] = [];
         let i = 0;
         for (i = 0; i < listData.length; i++) {
-            listtabledata[i] = { "idx": "", "id": "", "spiffeid": "", "parentid": "", "selectors": "", "info": "" };
+            listtabledata[i] = { "idx": "", "id": "", "spiffeid": "", "parentid": "", "selectors": "", "info": "", "expired": ""};
             listtabledata[i]["idx"] = (i + 1).toString();
             listtabledata[i]["id"] = listData[i].props.entry.id;
             listtabledata[i]["spiffeid"] = "spiffe://" + listData[i].props.entry.spiffe_id.trust_domain + listData[i].props.entry.spiffe_id.path;
             listtabledata[i]["parentid"] = "spiffe://" + listData[i].props.entry.parent_id.trust_domain + listData[i].props.entry.parent_id.path;
             listtabledata[i]["selectors"] = listData[i].props.entry.selectors.map((s: { type: string; value: string; }) => s.type + ":" + s.value).join(', ');
             listtabledata[i]["info"] = JSON.stringify(listData[i].props.entry, null, ' ');
+            if (listData[i].props.expires_at <= Math.floor(Date.now() / 1000))
+                listtabledata[i]["expired"] = "Expired";
+            else
+                listtabledata[i]["expired"] = "Not Expired";
         }
         this.setState({
             listTableData: listtabledata
@@ -161,6 +165,10 @@ class EntriesListTable extends React.Component<EntriesListTableProp, EntriesList
             {
                 header: 'Info',
                 key: 'info',
+            },
+            {
+                header: 'Expirey Status',
+                key: 'expired',
             },
         ];
         return (
